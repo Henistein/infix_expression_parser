@@ -1,9 +1,8 @@
 from string import ascii_lowercase
 from itertools import product
 
-#E = '((9 + 9) * (8 - 7)) / (8 - 9)'
+E = '((9 + 9) * (8 - 7)) / (8 - 9)'
 #E = '(9 + 9) * (8 - 7)'
-E = '(9 + 9) * (9 + 9) + (9 + 9) * (9 + 9) + (9 + 9) * (9 + 9) + (9 + 9) * (9 + 9)'
 
 # generate vars
 def generate_vars():
@@ -24,10 +23,6 @@ def pv(E):
       return count
   return count
 
-# Infix tree
-def it(E):
-  if len(E) == 1 and E.isdigit():
-    return float(E)
 
 # auxiliar function that replace character at index
 def replace_index(string, position, new_character):
@@ -63,15 +58,39 @@ def rcip(E):
     E = E.replace(content, rcip(content))
     return rcip(E)
   else:
-    #if any(char.isdigit() for char in E):
-      # generate the new var
-      gv = var.__next__()
-      V[gv] = E
-      return gv
-    #else:
-      #return E
+    # generate the new var
+    gv = var.__next__()
+    V[gv] = E
+    return gv
+
+# Infix tree
+# assuming that the expresssion is valid
+def infix(E):
+
+  # Check if E is a number or a variable  
+  if E.isdigit():
+    return float(E)
+  elif len(E) == 1:
+    return infix(V[E])
+  else:
+
+    if '+' in E:
+      i = E.index('+')
+      return infix(E[:i]) + infix(E[i+1:])
+    elif '-' in E:
+      i = E.index('-')
+      return infix(E[:i]) - infix(E[i+1:])
+    elif '*' in E:
+      i = E.index('*')
+      return infix(E[:i]) * infix(E[i+1:])
+    elif '/' in E:
+      i = E.index('/')
+      return infix(E[:i]) / infix(E[i+1:])
+    else:
+      return 0
+
 
 E = E.replace(' ', '')
-print(E)
-print(V[rcip(E)])
-print(V)
+print("Expr: ", E)
+print("Equation: ", V[rcip(E)])
+print("Res: ", infix(V[rcip(E)]))
