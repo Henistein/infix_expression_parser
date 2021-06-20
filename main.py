@@ -1,9 +1,6 @@
 from string import ascii_lowercase
 from itertools import product
 
-#E = '((9 + 9) * (8 - 7)) / (8 - 9)'
-#E = '2 * 5 + 3 - 2 * (8 / (4 / 2)) + (3 * 3)'
-E = '(() * (8 - 7)) / (8 - 9)'
 #---------------Validation-and-Auxiliar-Functions---------------#
 # generate vars
 def generate_vars():
@@ -26,31 +23,38 @@ def pv(E):
 
 # operation-number validation
 def on_validation(E):
-  # remove all the parentheses
-  E = E.replace('(', "").replace(')', "")
+  # remove all the parentheses and spaces
+  E = E.replace('(', " ").replace(')', " ")
   # convert all the operations into 'o'
   s = list(E)
   for i in range(len(E)):
     if s[i] in ['+', '-', '/', '*', '^']:
       s[i] = 'o' 
 
-  i = s.count('o') + 1
+  i = s.count('o') + 2
   while i:
-    print(s, i)
-    if ''.join([str(elem) for elem in s]).isdigit():
+    if ''.join(s).replace(' ', '').isdigit():
       return 1
 
-    if not ''.join([str(elem) for elem in s[:s.index('o')]]).isdigit():
-      return 0 
-    s = s[s.index('o')+1:]
+    if 'o' in s:
+      if not (''.join([str(elem) for elem in s[:s.index('o')]])).replace(' ', '').isdigit():
+        return 0 
+      s = s[s.index('o')+1:]
     i -= 1
   return 0
 
 # check validation
 def check_validation(E):
-  if pv(E) == 1:
+  E = E.replace(' ', '')
+  # Some pre errors to be checked (optimization) 
+  if '()' in E or ')(' in E:
+    return 0
+  if pv(E) == 0:
     return on_validation(E)
   return 0
+
+
+#---------------Auxiliar---------------#
 
 # auxiliar function that replace character at index
 def replace_index(string, position, new_character):
@@ -122,11 +126,20 @@ def infix(E):
     else:
       return 0
 
+if __name__ == '__main__':
+  
+  while(1):
+    try:
+      E = input(">> ")
 
-E = E.replace(' ', '')
-#print("Expr: ", E)
-#print("Equation: ", V[rcip(E)])
-#print("Res: ", infix(V[rcip(E)]))
+      if check_validation(E): 
+        E = E.replace(' ', '')
+        print("Expr: ", E)
+        print("Equation: ", V[rcip(E)])
+        print("Res: ", infix(V[rcip(E)]))
 
-print(check_validation(E))
-
+      else:
+        print("Invalid expression!")
+    except EOFError as e:
+      print('Bye!')
+      break
