@@ -1,4 +1,4 @@
-# infix_expression_parser
+# Infix expression parser
 
 Infix expression calculator written in python
 
