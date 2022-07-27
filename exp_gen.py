@@ -1,9 +1,8 @@
 import numpy.random as random
-from tqdm import trange
+import multiprocessing
+import time
 
-# TODO: Fix recursion issues
-# TODO: Fix overflow issues
-# TODO: Fix cast issues
+from tqdm import trange
 
 class ExpGen:
   # generate an expression X
@@ -12,11 +11,19 @@ class ExpGen:
   # for each term generate a number or an expression
   # example: A1 -> 1 or A1 -> (X)
   # for each _ choose a random operator (+, -, *, /, ^)
-  def __init__(self, max_terms=10, max_number=10):
+  def __init__(self, max_terms=5, max_number=100):
     self.operators = ['+', '-', '*', '/', '**']
     self.max_terms = max_terms + 1
     self.max_terms_back = max_terms + 1
     self.max_number = max_number
+  
+  def _eval(self, exp, queue):
+    try:
+      print(exp)
+      res = eval(exp)
+      queue.put(res)
+    except (ZeroDivisionError, OverflowError):
+      queue.put(None)
   
   def _generate(self):
     # probability of 0.70 to decrease the number of terms
@@ -50,13 +57,24 @@ class ExpGen:
         if tries == 100:
           print('100 tries failed, returning (0, 0)...')
           return (0, 0)
-        try:
-          exp = self._generate()
-          res = eval(exp)
-          break
-        except (ZeroDivisionError, OverflowError):
-          tries += 1
-          exp = self._generate()
+
+        exp = self._generate()
+        # eval the expression, if it takes too long break
+        queue = multiprocessing.Queue()
+        p = multiprocessing.Process(target=self._eval, args=(exp,queue))
+        p.start()
+        start = time.time()
+        while p.is_alive():
+          if time.time() - start > 5:
+            print('evaluation took too long...')
+            p.terminate()
+            p.join()
+        # check if it was successful
+        if not queue.empty():
+          res = queue.get()
+          if res is not None:
+            break
+        tries += 1
       expressions.append((exp, res))
     return expressions
       
