@@ -19,7 +19,6 @@ class ExpGen:
   
   def _eval(self, exp, queue):
     try:
-      print(exp)
       res = eval(exp)
       queue.put(res)
     except (ZeroDivisionError, OverflowError):
