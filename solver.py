@@ -1,8 +1,7 @@
-test1 = "80-93-1751.0+62", -1720
-test2 = "-80-93-1751.0+62", -1862
-test3 = "-80-93-1751.0*62/2", eval("-80-93-1751.0*62/2")
-test4 = "-80-93-1751.0/62*2", eval("-80-93-1751.0/62*2")
-
+import time
+import cProfile
+import sys
+sys.setrecursionlimit(10000)
 
 def split_exp(exp):
   return exp.replace('+', ' + ').replace('*', ' * ').replace('/', ' / ').split()
@@ -40,10 +39,15 @@ def solve(exp):
   exp = decompose(exp)
   return _solve(exp)
 
-def _solve(exp):
+def old_solve(exp):
+  exp = decompose(exp)
+  return _solve_(exp)
+
+#@profile
+def _solve_(exp):
   if '+' not in exp and '*' not in exp and '/' not in exp:
     assert len(exp) == 1, 'Invalid expression:  %s' % exp
-    return exp
+    return float(exp[0])
 
   if '*' in exp or '/' in exp:
     op_idx_times = ret_index(exp, '*')
@@ -55,11 +59,73 @@ def _solve(exp):
   else:
     exp = perform_op(exp, ret_index(exp, '+')-1, ret_index(exp, '+')+1, '+')
 
+  return _solve_(exp)
+
+def _solve(exp):
+
+  if len(exp) == 1:
+    return float(exp[0])
+  if len(exp) == 3:
+    return float(perform_op(exp, 0, 2, exp[1])[0])
+  
+  for i in range(len(exp)-4):
+    if exp[i] in ['+', '*', '/']:
+      continue
+    curr_op = exp[i+1]
+    next_op = exp[i+3]
+    if next_op in ['*', '/'] and curr_op not in ['*', '/']:
+      exp = perform_op(exp, i+2, i+4, next_op)
+    else:
+      exp = perform_op(exp, i, i+2, curr_op)
+    break
+    
+
   return _solve(exp)
 
       
-  
-print(solve(test1[0]), test1[1])
-print(solve(test2[0]), test2[1])
-print(solve(test3[0]), test3[1])
-print(solve(test4[0]), test4[1])
+from exp_gen import ExpGen
+from not_mine import evaluate
+from not_mine2 import Solution
+
+expressions = ExpGen(max_terms=100, parenthesis_prob=0, max_number=100, seed=420).generate(10000)
+
+print('Old Mine:')
+start = time.time()
+for pair in expressions:
+  solved = old_solve(pair[0])
+  if round(solved, 3) != round(pair[1], 3):
+    print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
+print("Time: %s" % (time.time() - start))
+
+print('Mine:')
+start = time.time()
+for pair in expressions:
+  solved = solve(pair[0])
+  if round(solved, 3) != round(pair[1], 3):
+    print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
+print("Time: %s" % (time.time() - start))
+
+print('-------------------------------')
+
+print('Not Mine:')
+start = time.time()
+for pair in expressions:
+  solved = evaluate(pair[0])
+  if round(solved, 3) != round(pair[1], 3):
+    print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
+print("Time: %s" % (time.time() - start))
+
+ob = Solution()
+print('Not Mine2:')
+start = time.time()
+for pair in expressions:
+  solved = ob.solve(pair[0])
+print("Time: %s" % (time.time() - start))
+
+print('Eval:')
+start = time.time()
+for pair in expressions:
+  solved = eval(pair[0])
+  if round(solved, 3) != round(pair[1], 3):
+    print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
+print("Time: %s" % (time.time() - start))
