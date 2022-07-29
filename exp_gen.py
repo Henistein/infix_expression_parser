@@ -11,11 +11,15 @@ class ExpGen:
   # for each term generate a number or an expression
   # example: A1 -> 1 or A1 -> (X)
   # for each _ choose a random operator (+, -, *, /, ^)
-  def __init__(self, max_terms=5, max_number=100):
-    self.operators = ['+', '-', '*', '/', '**']
+  def __init__(self, max_terms=5, max_number=100, parenthesis_prob=0.4, seed=None):
+    self.operators = ['+', '-', '*', '/']#, '**']
+    self.p = [0.25, 0.25, 0.25, 0.25]#, 0.04]
+    self.parenthesis_prob = parenthesis_prob
     self.max_terms = max_terms + 1
     self.max_terms_back = max_terms + 1
     self.max_number = max_number
+    if seed is not None:
+      random.seed(seed)
   
   def _eval(self, exp, queue):
     try:
@@ -32,10 +36,10 @@ class ExpGen:
         self.max_terms = 2
       
     n_terms = random.randint(1, self.max_terms)
-    terms = '_'.join([str(random.choice([random.randint(1, self.max_number), 'X'], p=[0.6, 0.4])) for _ in range(n_terms)])
+    terms = '_'.join([str(random.choice([random.randint(1, self.max_number), 'X'], p=[1-self.parenthesis_prob, self.parenthesis_prob])) for _ in range(n_terms)])
 
     # swap all the _ with random operators
-    terms = [random.choice(self.operators, p=[0.24, 0.24, 0.24, 0.24, 0.04]) if elem == '_' else elem for elem in terms]
+    terms = [random.choice(self.operators, p=self.p) if elem == '_' else elem for elem in terms]
 
     if 'X' not in terms:
       return ''.join(terms)
@@ -78,6 +82,15 @@ class ExpGen:
     return expressions
       
   
+def load(p):
+  name = "expressions_100_para.txt" if p else "expressions_100K_no_para.txt"
+  f = open(name, 'r')
+  expressions = []
+  for pair in f.readlines():
+    s = pair.split(' ')
+    expressions.append((s[0], float(s[1])))
+  return expressions
+
 
 if __name__ == '__main__':
-  print(ExpGen().generate(1000))
+  print(ExpGen(max_terms=20, parenthesis_prob=0, seed=420).generate(1000))
