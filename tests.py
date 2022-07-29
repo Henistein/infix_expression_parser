@@ -35,8 +35,9 @@ class TestEvaluation(unittest.TestCase):
   """
   
   def test_par(self):
+    print('Parenthesis:')
     expressions = load(True)
-    #expressions = ExpGen(max_terms=10, parenthesis_prob=0.4).generate(1000)
+    #expressions = ExpGen(max_terms=100, parenthesis_prob=0.5, max_number=1000).generate(100)
 
     myeval = ExpEval()
     print('New Mine:')
@@ -48,8 +49,6 @@ class TestEvaluation(unittest.TestCase):
         print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
     print("Time: %s" % (time.time() - start))
 
-    print('-------------------------------')
-
     print('Eval:')
     start = time.time()
     for pair in expressions:
@@ -58,8 +57,8 @@ class TestEvaluation(unittest.TestCase):
         print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
     print("Time: %s" % (time.time() - start))
 
-  """
   def test_no_par(self):
+    print('No Parenthesis:')
     expressions = load(False)
 
     myeval = ExpEval()
@@ -70,8 +69,6 @@ class TestEvaluation(unittest.TestCase):
       if round(solved, 3) != round(pair[1], 3):
         print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
     print("Time: %s" % (time.time() - start))
-
-    print('-------------------------------')
 
     ob = Solution()
     print('Not Mine2:')
@@ -89,7 +86,6 @@ class TestEvaluation(unittest.TestCase):
         print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
     print("Time: %s" % (time.time() - start))
 
-  """
 
 if __name__ == "__main__":
   unittest.main()

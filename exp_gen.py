@@ -89,6 +89,7 @@ def load(p):
   for pair in f.readlines():
     s = pair.split(' ')
     expressions.append((s[0], float(s[1])))
+  f.close()
   return expressions
 
 
