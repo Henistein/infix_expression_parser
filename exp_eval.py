@@ -1,4 +1,4 @@
-from clibs.expressions import get_parenthesis_index
+from clibs.expressions import *
 
 class ExpEval:
   def __init__(self):
@@ -53,11 +53,12 @@ class ExpEval:
 
   #@profile
   def new_solve(self, exp):
-    exp = self.ultra_split(exp)
+    #exp = self.ultra_split(exp)
+    exp = ultra_split(exp)
     res = 0
     res2 = None
     for x in exp:
-      if self.is_number(x):
+      if is_number(x):
         res += float(x)
       else:
         splited = x.replace('*', ' * ').replace('/', ' / ').split()
@@ -98,14 +99,16 @@ from exp_gen import ExpGen,load
 
 if __name__ == '__main__':
   expressions = load(True)
-  #expressions = ExpGen(max_terms=10, parenthesis_prob=0.5, max_number=1000).generate(100)
+  #expressions = ExpGen(max_terms=10, parenthesis_prob=0.5, max_number=100000).generate(10)
 
   myeval = ExpEval()
+
   print('New Mine:')
   start = time.time()
   for pair in expressions:
-    #print(pair)
     solved = float(myeval.new_evaluate(pair[0]))
+    """
     if round(solved, 3) != round(pair[1], 3):
       print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
+    """
   print("Time: %s" % (time.time() - start))

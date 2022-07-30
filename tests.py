@@ -57,6 +57,7 @@ class TestEvaluation(unittest.TestCase):
         print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
     print("Time: %s" % (time.time() - start))
 
+  """
   def test_no_par(self):
     print('No Parenthesis:')
     expressions = load(False)
@@ -86,6 +87,7 @@ class TestEvaluation(unittest.TestCase):
         print("Expression: %s\nOutput: %s\nExpected: %s" % (pair[0], solved, pair[1]))
     print("Time: %s" % (time.time() - start))
 
+  """
 
 if __name__ == "__main__":
   unittest.main()
